@@ -1,38 +1,34 @@
-# create-svelte
+# ❤️ ELive
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+ELive - A statusboard built to fit your needs
 
-## Creating a project
+> **Note** - this project is still in early development, bugs may occur 🐛
 
-If you're seeing this, you've probably already done this step. Congrats!
+Set up your own own personal statusboard using ELive, monitor endpoints and their responses.
 
-```bash
-# create a new project in the current directory
-npm init svelte
+## 🚀 Quickstart
 
-# create a new project in my-app
-npm init svelte my-app
-```
+To get going, start by cloning / forking this project. Once done, complete the following steps:
 
-## Developing
+### Database setup
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Before starting with the installation, you need to set up a database.
 
-```bash
-npm run dev
+1. Setup your [postgres](https://www.postgresql.org/) database - there is a `docker-compose.yml` file that makes it easy to get up and running with a simple `docker-compose up -d` command.
+2. Update your env variables:
+   - If using the `docker-compose.yml`-file without any additional settings, you can copy the `.env.example` file to `.env` and continue. Otherwise the `DATABASE_URL` environment variable is required to be set accordingly.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+### Project setup
 
-## Building
+1. Run `yarn install` to install all the necessary dependencies.
+2. Push the [Prisma](https://www.prisma.io/) schema to your database using the `yarn prisma:push` command.
 
-To create a production version of your app:
+> Tip: you can use the `yarn prisma:seed` command to generate two example services to use during development.
 
-```bash
-npm run build
-```
+3. Start the development server using `yarn dev`
 
-You can preview the production build with `npm run preview`.
+🎉 Thats it - you're up and running with your brand new statusboard.
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+## 📚 Documentation
+
+A full list of all the available commands can be found [here](docs)
