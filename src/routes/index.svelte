@@ -1,2 +1,26 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts" context="module">
+	import ServicesGrid from '$/components/feature/services/services-grid.svelte';
+	import type { ServiceStatusResponse } from '$/models/ServiceStatusResponse';
+	import type { Load } from '.svelte-kit/types/src/routes';
+
+	export const load: Load = async ({ fetch }) => {
+		const services = await fetch('/api/services/status').then((res) => res.json());
+
+		return {
+			props: {
+				services
+			}
+		};
+	};
+</script>
+
+<script lang="ts">
+	export let services: ServiceStatusResponse[];
+</script>
+
+<div class="index">
+	<ServicesGrid {services} />
+</div>
+
+<style lang="scss">
+</style>

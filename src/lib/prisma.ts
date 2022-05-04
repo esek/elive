@@ -1,14 +1,9 @@
+import type { ServiceResponse } from '$/models/ServiceResponse';
 import pkg from '@prisma/client';
 
 const prisma = new pkg.PrismaClient();
 
-export type ServiceWithStatus = pkg.Service & {
-	status: pkg.ServiceStatus & {
-		headers: pkg.StatusHeader[];
-	};
-};
-
-export const fetchServices = async (): Promise<ServiceWithStatus[]> => {
+export const fetchServices = async (): Promise<ServiceResponse[]> => {
 	const services = await prisma.service.findMany({
 		include: {
 			status: {
@@ -19,7 +14,7 @@ export const fetchServices = async (): Promise<ServiceWithStatus[]> => {
 		}
 	});
 
-	return services.filter((s): s is ServiceWithStatus => s.status != null);
+	return services.filter((s): s is ServiceResponse => s.status != null);
 };
 
 export default prisma;

@@ -1,0 +1,5 @@
+@use './tailwind' as *;
+
+.max-w {
+	@apply mx-auto max-w-7xl px-6 2xl:px-0;
+}

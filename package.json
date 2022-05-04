@@ -19,7 +19,9 @@
 		"@prisma/client": "^3.13.0",
 		"axios": "^0.27.2",
 		"badge-maker": "^3.3.1",
-		"jsonpath": "^1.1.1"
+		"jsonpath": "^1.1.1",
+		"sass": "^1.51.0",
+		"svelte-icons-pack": "^1.4.6"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "next",
@@ -32,10 +34,10 @@
 		"autoprefixer": "^10.4.7",
 		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^8.3.0",
-		"eslint-plugin-svelte3": "^3.2.1",
 		"postcss": "^8.4.13",
-		"prettier": "^2.5.1",
+		"prettier": "^2.6.2",
 		"prettier-plugin-svelte": "^2.5.0",
+		"prettier-plugin-tailwindcss": "^0.1.10",
 		"prisma": "^3.13.0",
 		"svelte": "^3.44.0",
 		"svelte-check": "^2.2.6",

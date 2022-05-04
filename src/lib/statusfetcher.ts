@@ -1,8 +1,8 @@
 import DefaultColors from '$/constants/colors';
+import type { ServiceResponse } from '$/models/ServiceResponse';
 import type { Service, ServiceStatusType, StatusHeader } from '@prisma/client';
 import axios, { type AxiosInstance } from 'axios';
 import jp from 'jsonpath';
-import type { ServiceWithStatus } from './prisma';
 
 type BasedOnStatus = {
 	success: string;
@@ -15,7 +15,7 @@ type Overrides = {
 };
 
 class StatusFetcher {
-	private readonly service: Service & { label: string };
+	private readonly service: Service & { label: string; url: string };
 
 	private readonly type: ServiceStatusType;
 	private readonly parser: string | null = null;
@@ -26,10 +26,10 @@ class StatusFetcher {
 	private statusMessage: string = 'Failed';
 	private successful: boolean = false;
 
-	constructor(service: ServiceWithStatus, useParsers: boolean) {
+	constructor(service: ServiceResponse, useParsers: boolean) {
 		const { status, ...rest } = service;
 
-		this.service = { ...rest, label: status.label };
+		this.service = { ...rest, label: status.label, url: status.statusUrl };
 
 		this.axiosInstance = this.createAxiosInstance(status.statusUrl, status.method, status.headers);
 
@@ -52,7 +52,7 @@ class StatusFetcher {
 	}
 
 	public static fromServicesArray(
-		statuses: ServiceWithStatus[],
+		statuses: ServiceResponse[],
 		useParsers: boolean
 	): StatusFetcher[] {
 		return statuses.map((s) => new StatusFetcher(s, useParsers));
@@ -162,6 +162,7 @@ class StatusFetcher {
 		return {
 			...this.service,
 			status: {
+				success: this.successful,
 				data: this.statusMessage,
 				color: this.getColor()
 			}
