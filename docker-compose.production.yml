@@ -1,0 +1,30 @@
+version: '3.8'
+
+networks:
+  elive-net:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres} # default: postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password} # default: password
+      - POSTGRES_DB=elive
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - elive-net
+
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@db/elive?sslmode=disable
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    networks:
+      - elive-net
