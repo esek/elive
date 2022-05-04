@@ -1,4 +1,4 @@
-import StatusFetcher from '$/lib/statusfetcher';
+import StatusFetcher from '$/lib/StatusFetcher';
 import prisma from '$lib/prisma';
 import type { ServiceWithStatus } from '$lib/prisma';
 import type { RequestHandler } from '@sveltejs/kit';

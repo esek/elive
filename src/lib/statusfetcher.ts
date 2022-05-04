@@ -4,23 +4,23 @@ import axios, { type AxiosInstance } from 'axios';
 import jp from 'jsonpath';
 import type { ServiceWithStatus } from './prisma';
 
-type Response =
-	| {
-			[key: string]: any;
-	  }
-	| string;
-
 type BasedOnStatus = {
-	success: string | null;
-	error: string | null;
+	success: string;
+	error: string;
+};
+
+type Overrides = {
+	colors: BasedOnStatus;
+	messages: BasedOnStatus;
 };
 
 class StatusFetcher {
-	private readonly service: Service;
+	private readonly service: Service & { label: string };
+
 	private readonly type: ServiceStatusType;
 	private readonly parser: string | null = null;
-	private readonly overrides: BasedOnStatus;
-	private readonly colors: BasedOnStatus;
+
+	private readonly overrides: Overrides;
 	private readonly axiosInstance: AxiosInstance;
 
 	private statusMessage: string = 'Failed';
@@ -29,18 +29,21 @@ class StatusFetcher {
 	constructor(service: ServiceWithStatus, useParsers: boolean) {
 		const { status, ...rest } = service;
 
-		this.service = rest;
+		this.service = { ...rest, label: status.label };
 
 		this.axiosInstance = this.createAxiosInstance(status.statusUrl, status.method, status.headers);
 
 		this.type = status.type;
+
 		this.overrides = {
-			success: status.successString,
-			error: status.errorString
-		};
-		this.colors = {
-			success: status.successColor,
-			error: status.errorColor
+			colors: {
+				success: status.successColor ?? DefaultColors.success,
+				error: status.errorColor ?? DefaultColors.error
+			},
+			messages: {
+				success: status.successString ?? 'Success',
+				error: status.errorString ?? 'Failed'
+			}
 		};
 
 		if (useParsers) {
@@ -94,8 +97,8 @@ class StatusFetcher {
 			this.successful = true;
 
 			// if we have an override, use that
-			if (this.overrides.success) {
-				this.statusMessage = this.overrides.success;
+			if (this.overrides.messages.success) {
+				this.statusMessage = this.overrides.messages.success;
 				return this;
 			}
 
@@ -110,18 +113,18 @@ class StatusFetcher {
 			return this;
 		} catch {
 			// if we have an override, use that
-			if (this.overrides.error) {
-				this.statusMessage = this.overrides.error;
+			if (this.overrides.messages.error) {
+				this.statusMessage = this.overrides.messages.error;
 			}
 
 			return this;
 		}
 	};
 
-	private getParsedValue = (response: string): string => {
+	private getParsedValue = (response: unknown): string => {
 		// if there is no parser, just return the response again
 		if (this.parser === null) {
-			return response;
+			return `${response}`;
 		}
 
 		// else we check how we want to parse it
@@ -140,12 +143,14 @@ class StatusFetcher {
 	 * @param parser a jsonpath string to use
 	 * @returns the value that is specified in the parser
 	 */
-	private parseJson = (json: Response, parser: string) => {
+	private parseJson = (json: unknown, parser: string) => {
 		if (typeof json !== 'object') {
-			return json;
+			return `${json}`;
 		}
 
 		const parsed = jp.query(json, parser);
+
+		console.log(parsed);
 
 		return parsed.join(', ');
 	};
@@ -168,21 +173,7 @@ class StatusFetcher {
 	 * @returns a string of the color
 	 */
 	private getColor = () => {
-		// check if we have any data
-		if (!this.successful) {
-			return this.overrideOrDefaultColor('error');
-		}
-
-		return this.overrideOrDefaultColor('success');
-	};
-
-	/**
-	 * Returns either the set overridecolor or the default
-	 * @param key the key indicating the status
-	 * @returns the color
-	 */
-	private overrideOrDefaultColor = (key: keyof BasedOnStatus) => {
-		return this.overrides[key] ?? DefaultColors[key];
+		return !this.successful ? this.overrides.colors.error : this.overrides.colors.success;
 	};
 }
 

@@ -11,6 +11,13 @@ export const get: RequestHandler = async ({ params }) => {
 	const service = await prisma.service.findFirst({
 		where: {
 			id: Number(id)
+		},
+		include: {
+			status: {
+				include: {
+					headers: true
+				}
+			}
 		}
 	});
 
@@ -30,7 +37,19 @@ export const put: RequestHandler = async ({ params, request }) => {
 		where: {
 			id: Number(id)
 		},
-		data: body
+		include: {
+			status: {
+				include: {
+					headers: true
+				}
+			}
+		},
+		data: {
+			...body,
+			status: {
+				update: body.status
+			}
+		}
 	});
 
 	return {
@@ -47,6 +66,13 @@ export const del: RequestHandler = async ({ params }) => {
 	const service = await prisma.service.delete({
 		where: {
 			id: Number(id)
+		},
+		include: {
+			status: {
+				include: {
+					headers: true
+				}
+			}
 		}
 	});
 

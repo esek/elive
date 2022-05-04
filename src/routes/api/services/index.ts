@@ -6,7 +6,15 @@ import type { RequestHandler } from '@sveltejs/kit';
  * Get the service information for all services
  */
 export const get: RequestHandler = async () => {
-	const services = await prisma.service.findMany();
+	const services = await prisma.service.findMany({
+		include: {
+			status: {
+				include: {
+					headers: true
+				}
+			}
+		}
+	});
 
 	return {
 		body: services

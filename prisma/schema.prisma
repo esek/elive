@@ -26,6 +26,7 @@ model Service {
 model ServiceStatus {
   id Int @id @default(autoincrement())
 
+  label     String
   statusUrl String            @map("status_url")
   method    Method
   type      ServiceStatusType
