@@ -3,6 +3,9 @@ import prisma from '$lib/prisma';
 import type { ServiceWithStatus } from '$lib/prisma';
 import type { RequestHandler } from '@sveltejs/kit';
 
+/**
+ * Get the status for a specific service
+ */
 export const get: RequestHandler = async ({ url, params }) => {
 	// you can opt out of using parsers by appending ?parsers=false to the url
 	const useParsers = url.searchParams.get('parsers') !== 'false';

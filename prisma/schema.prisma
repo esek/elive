@@ -26,23 +26,23 @@ model Service {
 model ServiceStatus {
   id Int @id @default(autoincrement())
 
-  statusUrl String
+  statusUrl String            @map("status_url")
   method    Method
   type      ServiceStatusType
   parser    String? // used to try to get an actual value from the siteUrl
 
   // overrides
-  successString String?
-  errorString   String?
+  successString String? @map("success_string")
+  errorString   String? @map("error_string")
 
-  successColor String?
-  errorColor   String?
+  successColor String? @map("success_color")
+  errorColor   String? @map("error_color")
 
   headers StatusHeader[]
 
   // relation to the service
-  service   Service @relation(fields: [serviceId], references: [id])
-  serviceId Int     @unique
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId Int     @unique @map("service_id")
 
   @@map("service_data")
 }
@@ -53,8 +53,10 @@ model StatusHeader {
   key   String
   value String
 
-  serviceStatus   ServiceStatus @relation(fields: [serviceStatusId], references: [id])
-  serviceStatusId Int           @unique
+  serviceStatus   ServiceStatus @relation(fields: [serviceStatusId], references: [id], onDelete: Cascade)
+  serviceStatusId Int           @unique @map("service_status_id")
+
+  @@map("status_headers")
 }
 
 enum ServiceStatusType {

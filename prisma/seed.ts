@@ -22,8 +22,7 @@ const seed = async () => {
 	const client = new PrismaClient();
 
 	// delete all records
-	await client.serviceStatus.deleteMany({});
-	await client.service.deleteMany({});
+	await client.service.deleteMany();
 
 	client.service
 		.create({
