@@ -18,9 +18,7 @@
 	export let services: ServiceStatusResponse[];
 </script>
 
-<div class="index">
-	<ServicesGrid {services} />
-</div>
+<ServicesGrid {services} />
 
 <style lang="scss">
 </style>

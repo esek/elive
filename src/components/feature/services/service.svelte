@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Card from '$/components/layout/card.svelte';
-	import IconButton from '$/components/layout/icon-button.svelte';
+	import IconButton from '$/components/ui/icon-button.svelte';
 	import Routes from '$/constants/routes';
 	import { toDate } from '$/helpers/date.helpers';
 	import type { ServiceStatusResponse } from '$/models/ServiceStatusResponse';
@@ -15,7 +15,7 @@
 </script>
 
 <Card>
-	<div class="flex items-center justify-between">
+	<div class="flex items-center justify-between" data-component="service">
 		<h2 class="text-xl font-bold">{service.name}</h2>
 
 		<div

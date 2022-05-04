@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1000 1000" stroke="currentColor">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1000 1000" stroke="currentColor" data-component="esek-icon">
 	<path
 		d="M947.22,500.14c4.66,237.38-192.83,448.26-447.16,448.08C251.47,948.04,51.77,747.58,51.89,498.1
 		C52,251.31,253.42,51.2,501.86,51.78C755.85,52.37,952.01,263.37,947.22,500.14z M500.3,928.95

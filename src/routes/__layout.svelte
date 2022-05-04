@@ -6,7 +6,7 @@
 <script lang="ts">
 </script>
 
-<div class="space-y-4">
+<div class="space-y-4 pb-24">
 	<Navbar />
 	<main class="max-w">
 		<slot />

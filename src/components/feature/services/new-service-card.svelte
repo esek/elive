@@ -5,7 +5,7 @@
 	import IoExtensionPuzzleOutline from 'svelte-icons-pack/io/IoExtensionPuzzleOutline';
 </script>
 
-<a href={Routes.NEW}>
+<a href={Routes.NEW} data-component="new-service-card">
 	<Card class="flex h-full cursor-pointer items-center justify-center hover:bg-gray-50">
 		<div class="flex flex-col items-center gap-2">
 			<span class="text-3xl">

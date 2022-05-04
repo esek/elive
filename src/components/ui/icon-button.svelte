@@ -16,6 +16,7 @@
 </script>
 
 <button
+	data-component="icon-button"
 	class="aspect-square rounded-md p-2 text-lg transition-colors"
 	class:hover:bg-sky-100={variant === 'primary'}
 	class:hover:text-sky-600={variant === 'primary'}
