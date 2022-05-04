@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Service {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  status ServiceStatus?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("services")
+}
+
+model ServiceStatus {
+  id Int @id @default(autoincrement())
+
+  statusUrl String
+  method    Method
+  type      ServiceStatusType
+  parser    String? // used to try to get an actual value from the siteUrl
+
+  // overrides
+  successString String?
+  errorString   String?
+
+  successColor String?
+  errorColor   String?
+
+  headers StatusHeader[]
+
+  // relation to the service
+  service   Service @relation(fields: [serviceId], references: [id])
+  serviceId Int     @unique
+
+  @@map("service_data")
+}
+
+model StatusHeader {
+  id Int @id @default(autoincrement())
+
+  key   String
+  value String
+
+  serviceStatus   ServiceStatus @relation(fields: [serviceStatusId], references: [id])
+  serviceStatusId Int           @unique
+}
+
+enum ServiceStatusType {
+  JSON
+  XML
+  YAML
+}
+
+enum Method {
+  GET
+  POST
+  PUT
+  DELETE
+  PATCH
+}

@@ -1,0 +1,49 @@
+{
+	"name": "elive",
+	"version": "0.0.1",
+	"author": {
+		"name": "Axel Froborg",
+		"email": "axel.froborg@gmail.com"
+	},
+	"scripts": {
+		"dev": "svelte-kit dev",
+		"build": "svelte-kit build",
+		"preview": "svelte-kit preview",
+		"prisma:push": "prisma db push",
+		"prisma:seed": "prisma db seed"
+	},
+	"prisma": {
+		"seed": "node --loader ts-node/esm prisma/seed.ts"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "next",
+		"@sveltejs/kit": "next",
+		"@types/jsonpath": "^0.2.0",
+		"@types/node": "^17.0.31",
+		"@types/randomcolor": "^0.5.6",
+		"@typescript-eslint/eslint-plugin": "^5.10.1",
+		"@typescript-eslint/parser": "^5.10.1",
+		"autoprefixer": "^10.4.7",
+		"eslint": "^7.32.0",
+		"eslint-config-prettier": "^8.3.0",
+		"eslint-plugin-svelte3": "^3.2.1",
+		"postcss": "^8.4.13",
+		"prettier": "^2.5.1",
+		"prettier-plugin-svelte": "^2.5.0",
+		"prisma": "^3.13.0",
+		"svelte": "^3.44.0",
+		"svelte-check": "^2.2.6",
+		"svelte-preprocess": "^4.10.1",
+		"tailwindcss": "^3.0.24",
+		"ts-node": "^10.7.0",
+		"tslib": "^2.3.1",
+		"typescript": "~4.6.2"
+	},
+	"type": "module",
+	"dependencies": {
+		"@prisma/client": "^3.13.0",
+		"axios": "^0.27.2",
+		"jsonpath": "^1.1.1",
+		"randomcolor": "^0.6.2"
+	}
+}

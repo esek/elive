@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres} # default: postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password} # default: password
+      - POSTGRES_DB=elive
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    restart: unless-stopped
