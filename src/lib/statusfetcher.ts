@@ -93,12 +93,8 @@ class StatusFetcher {
 			const status = await this.axiosInstance.get('');
 			const response = status.data;
 
-			console.log(response);
-
 			// indicate that the request was successful
 			this.successful = true;
-
-			console.log(this.overrides);
 
 			// if we have an override, use that
 			if (this.overrides.messages.success) {
