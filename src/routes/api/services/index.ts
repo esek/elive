@@ -35,7 +35,14 @@ export const post: RequestHandler = async ({ request }) => {
 	}
 
 	const service = await prisma.service.create({
-		data: body
+		data: body,
+		include: {
+			status: {
+				include: {
+					headers: true
+				}
+			}
+		}
 	});
 
 	return {

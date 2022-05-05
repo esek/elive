@@ -77,37 +77,32 @@
 		service?.status.headers.map((h) => ({ label: h.key, value: h.value })) ?? [];
 
 	const handleSubmit = () => {
+		const { status, ...reduced } = form;
+
+		const body = {
+			...reduced,
+			status: {
+				...form.status,
+				headers: headers.map((h) => ({ key: h.label, value: h.value }))
+			}
+		};
+
+		const bodyStr = JSON.stringify(body);
+
 		if (isNew) {
-			createService();
+			createService(bodyStr);
 		} else {
-			updateService();
+			updateService(bodyStr);
 		}
 	};
 
-	const createService = async () => {
+	const createService = async (body: string) => {
 		const res = await fetch('/api/services', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({
-				name: form.name,
-				description: form.description,
-				status: {
-					label: form.status.label,
-					method: form.status.method,
-					statusUrl: form.status.statusUrl,
-					type: form.status.type,
-					successString: form.status.successString,
-					successColor: form.status.successColor,
-					errorString: form.status.errorString,
-					errorColor: form.status.errorColor,
-					parser: form.status.parser,
-					headers: headers
-						.filter((h) => h.label && h.value)
-						.map((h) => ({ key: h.label, value: h.value }))
-				}
-			})
+			body
 		});
 
 		if (res.status === 201) {
@@ -117,31 +112,13 @@
 		console.log(res);
 	};
 
-	const updateService = async () => {
+	const updateService = async (body: string) => {
 		const res = await fetch(`/api/services/${service?.id}`, {
 			method: 'PUT',
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify({
-				name: form.name,
-				description: form.description,
-
-				status: {
-					label: form.status.label,
-					method: form.status.method,
-					statusUrl: form.status.statusUrl,
-					type: form.status.type,
-					successString: form.status.successString,
-					successColor: form.status.successColor,
-					errorString: form.status.errorString,
-					errorColor: form.status.errorColor,
-					parser: form.status.parser,
-					headers: headers
-						.filter((h) => h.label && h.value)
-						.map((h) => ({ key: h.label, value: h.value }))
-				}
-			})
+			body
 		});
 
 		if (res.status === 200) {
