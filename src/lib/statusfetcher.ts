@@ -5,8 +5,8 @@ import axios, { type AxiosInstance } from 'axios';
 import jp from 'jsonpath';
 
 type BasedOnStatus = {
-	success: string;
-	error: string;
+	success: string | null;
+	error: string | null;
 };
 
 type Overrides = {
@@ -41,8 +41,8 @@ class StatusFetcher {
 				error: status.errorColor ?? DefaultColors.error
 			},
 			messages: {
-				success: status.successString ?? 'Success',
-				error: status.errorString ?? 'Failed'
+				success: status.successString,
+				error: status.errorString
 			}
 		};
 
@@ -93,8 +93,12 @@ class StatusFetcher {
 			const status = await this.axiosInstance.get('');
 			const response = status.data;
 
+			console.log(response);
+
 			// indicate that the request was successful
 			this.successful = true;
+
+			console.log(this.overrides);
 
 			// if we have an override, use that
 			if (this.overrides.messages.success) {
@@ -111,7 +115,7 @@ class StatusFetcher {
 			// if we do have a parser, use it
 			this.statusMessage = this.getParsedValue(response);
 			return this;
-		} catch {
+		} catch (err) {
 			// if we have an override, use that
 			if (this.overrides.messages.error) {
 				this.statusMessage = this.overrides.messages.error;
@@ -150,7 +154,10 @@ class StatusFetcher {
 
 		const parsed = jp.query(json, parser);
 
-		console.log(parsed);
+		if (!parsed?.length) {
+			this.successful = false;
+			return 'JSON parsing failed';
+		}
 
 		return parsed.join(', ');
 	};

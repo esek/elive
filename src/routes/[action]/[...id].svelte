@@ -8,6 +8,8 @@
 	import type { Option } from '$/models/Form';
 	import type { ServiceResponse } from '$/models/ServiceResponse';
 	import type { Load } from '@sveltejs/kit';
+	import Icon from 'svelte-icons-pack';
+	import FiSave from 'svelte-icons-pack/fi/FiSave';
 
 	export const load: Load = async ({ params, fetch }) => {
 		const { action, id } = params;
@@ -55,8 +57,6 @@
 	export let isNew: boolean;
 	export let service: ServiceResponse | null;
 
-	console.log(service);
-
 	let form = {
 		name: service?.name ?? '',
 		description: service?.description ?? '',
@@ -75,9 +75,84 @@
 
 	let headers: Option[] =
 		service?.status.headers.map((h) => ({ label: h.key, value: h.value })) ?? [];
+
+	const handleSubmit = () => {
+		if (isNew) {
+			createService();
+		} else {
+			updateService();
+		}
+	};
+
+	const createService = async () => {
+		const res = await fetch('/api/services', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				name: form.name,
+				description: form.description,
+				status: {
+					label: form.status.label,
+					method: form.status.method,
+					statusUrl: form.status.statusUrl,
+					type: form.status.type,
+					successString: form.status.successString,
+					successColor: form.status.successColor,
+					errorString: form.status.errorString,
+					errorColor: form.status.errorColor,
+					parser: form.status.parser,
+					headers: headers
+						.filter((h) => h.label && h.value)
+						.map((h) => ({ key: h.label, value: h.value }))
+				}
+			})
+		});
+
+		if (res.status === 201) {
+			window.location.href = '/services';
+		}
+
+		console.log(res);
+	};
+
+	const updateService = async () => {
+		const res = await fetch(`/api/services/${service?.id}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				name: form.name,
+				description: form.description,
+
+				status: {
+					label: form.status.label,
+					method: form.status.method,
+					statusUrl: form.status.statusUrl,
+					type: form.status.type,
+					successString: form.status.successString,
+					successColor: form.status.successColor,
+					errorString: form.status.errorString,
+					errorColor: form.status.errorColor,
+					parser: form.status.parser,
+					headers: headers
+						.filter((h) => h.label && h.value)
+						.map((h) => ({ key: h.label, value: h.value }))
+				}
+			})
+		});
+
+		if (res.status === 200) {
+			window.location.href = '/services';
+		}
+
+		console.log(res);
+	};
 </script>
 
-<div class="grid gap-8">
+<form class="grid gap-8" on:submit|preventDefault={handleSubmit}>
 	<EditCard title="Base settings">
 		<Input
 			name="name"
@@ -160,7 +235,16 @@
 			placeholder={DefaultColors.error}
 		/>
 	</EditCard>
-</div>
+
+	<button
+		class="fixed bottom-8 right-8 flex aspect-square h-16 items-center justify-center gap-4 rounded-full bg-sky-100 px-4 text-sky-400 shadow-md transition-all hover:bg-sky-200/70"
+		type="submit"
+	>
+		<span class="text-2xl">
+			<Icon src={FiSave} color="currentColor" />
+		</span>
+	</button>
+</form>
 
 <style lang="scss">
 </style>

@@ -1,5 +1,6 @@
-import prisma, { type ServiceWithStatus } from '$/lib/prisma';
+import prisma from '$/lib/prisma';
 import StatusFetcher from '$/lib/StatusFetcher';
+import type { ServiceResponse } from '$/models/ServiceResponse';
 import type { RequestHandler } from '@sveltejs/kit';
 import { makeBadge } from 'badge-maker';
 
@@ -29,7 +30,7 @@ export const get: RequestHandler = async ({ params }) => {
 		};
 	}
 
-	const status = await new StatusFetcher(service as ServiceWithStatus, true).fetch();
+	const status = await new StatusFetcher(service as ServiceResponse, true).fetch();
 	const json = status.toJson();
 
 	const badge = makeBadge({

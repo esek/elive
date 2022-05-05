@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Card from '$/components/layout/card.svelte';
+	import Tag from '$/components/layout/tag.svelte';
 	import IconButton from '$/components/ui/icon-button.svelte';
 	import Routes from '$/constants/routes';
 	import { toDate } from '$/helpers/date.helpers';
@@ -33,7 +34,11 @@
 	<p class="text-sm text-gray-600">Created at: {toDate(service.createdAt)}</p>
 	<p class="text-sm text-gray-600">Last updated at: {toDate(service.updatedAt)}</p>
 
-	<div class="mt-4 flex gap-2">
+	<Tag class="mt-2 border border-gray-400 bg-gray-200" size="xs">
+		{service.status.data}
+	</Tag>
+
+	<div class="mt-2 flex gap-2">
 		<IconButton
 			icon={FiEdit2}
 			label="Edit {service.name}"
