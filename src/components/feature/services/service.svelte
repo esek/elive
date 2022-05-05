@@ -5,6 +5,7 @@
 	import Routes from '$/constants/routes';
 	import { toDate } from '$/helpers/date.helpers';
 	import type { ServiceStatusResponse } from '$/models/ServiceStatusResponse';
+	import { invalidate } from '$app/navigation';
 	import Icon from 'svelte-icons-pack';
 	import FiCheck from 'svelte-icons-pack/fi/FiCheck';
 	import FiEdit2 from 'svelte-icons-pack/fi/FiEdit2';
@@ -13,11 +14,29 @@
 	import FiX from 'svelte-icons-pack/fi/FiX';
 
 	export let service: ServiceStatusResponse;
+
+	const doDelete = async () => {
+		if (!window.confirm('Are you sure you want to delete this service?')) {
+			return;
+		}
+
+		const response = await fetch(`/api/services/${service.id}`, {
+			method: 'DELETE'
+		});
+
+		if (response.ok) {
+			invalidate('/api/services/status');
+		}
+	};
 </script>
 
 <Card>
 	<div class="flex items-center justify-between" data-component="service">
-		<h2 class="text-xl font-bold">{service.name}</h2>
+		<a href={Routes.EDIT(service.id)}>
+			<h2 class="text-xl font-bold hover:text-sky-400">
+				{service.name}
+			</h2>
+		</a>
 
 		<div
 			class="flex aspect-square w-fit items-center justify-center rounded-full p-2 text-xl"
@@ -35,7 +54,7 @@
 	<p class="text-sm text-gray-600">Last updated at: {toDate(service.updatedAt)}</p>
 
 	<Tag class="mt-2 border border-gray-400 bg-gray-200" size="xs">
-		{service.status.data}
+		{service.label}: {service.status.data}
 	</Tag>
 
 	<div class="mt-2 flex gap-2">
@@ -46,7 +65,12 @@
 			href={Routes.EDIT(service.id)}
 		/>
 
-		<IconButton icon={FiTrash2} label="Remove {service.name}" variant="danger" />
+		<IconButton
+			icon={FiTrash2}
+			label="Remove {service.name}"
+			variant="danger"
+			on:click={doDelete}
+		/>
 
 		<IconButton
 			icon={FiExternalLink}
