@@ -5,8 +5,10 @@
 	import MultiInput from '$/components/ui/multi-input.svelte';
 	import RadioButtons from '$/components/ui/radio-buttons.svelte';
 	import DefaultColors from '$/constants/colors';
+	import Routes from '$/constants/routes';
 	import type { Option } from '$/models/Form';
 	import type { FullService, StrippedService } from '$/models/ServiceResponse';
+	import { goto } from '$app/navigation';
 	import type { ServiceButtonOptions } from '@prisma/client';
 	import type { Load } from '@sveltejs/kit';
 	import Icon from 'svelte-icons-pack';
@@ -81,7 +83,9 @@
 	const handleSubmit = () => {
 		const body = {
 			...form,
-			headers: headers.map((h) => ({ key: h.label, value: h.value }))
+			headers: headers
+				.filter((h) => h.label && h.value)
+				.map((h) => ({ key: h.label, value: h.value }))
 		};
 
 		const bodyStr = JSON.stringify(body);
@@ -102,11 +106,9 @@
 			body
 		});
 
-		if (res.status === 201) {
-			window.location.href = '/services';
+		if (res.ok) {
+			goto(Routes.HOME);
 		}
-
-		console.log(res);
 	};
 
 	const updateService = async (body: string) => {
@@ -118,11 +120,9 @@
 			body
 		});
 
-		if (res.status === 200) {
-			window.location.href = '/services';
+		if (res.ok) {
+			goto(Routes.HOME);
 		}
-
-		console.log(res);
 	};
 </script>
 
@@ -133,6 +133,7 @@
 			bind:value={form.name}
 			label="Service name"
 			helper="Give your service a describing name"
+			placeholder="API"
 		/>
 
 		<Input
@@ -140,6 +141,7 @@
 			bind:value={form.button.label}
 			label="Label"
 			helper="This is what will be shown on badges etc."
+			placeholder="API Status"
 		/>
 	</EditCard>
 
@@ -162,7 +164,12 @@
 		/>
 
 		<div class="col-span-full">
-			<MultiInput label="Request headers" bind:values={headers} />
+			<MultiInput
+				label="Request headers"
+				bind:values={headers}
+				keyPlaceholder="Ex. Authorization"
+				valuePlaceholder="Bearer ..."
+			/>
 		</div>
 	</EditCard>
 
@@ -186,6 +193,7 @@
 			bind:value={form.successOverride}
 			label="Success message"
 			helper="Override the fetched success message if the request suceeds"
+			placeholder="Success"
 		/>
 
 		<Input
@@ -193,6 +201,7 @@
 			bind:value={form.errorOverride}
 			label="Error message"
 			helper="Override the fetched error message if the request fails"
+			placeholder="Error"
 		/>
 
 		<ColorInput

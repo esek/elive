@@ -1,4 +1,5 @@
 import prisma, { fetchServices } from '$/lib/prisma';
+import type { FullService } from '$/models/ServiceResponse';
 import type { Prisma, Service } from '@prisma/client';
 import type { RequestHandler } from '@sveltejs/kit';
 
@@ -17,13 +18,13 @@ export const get: RequestHandler<{}, Service[]> = async () => {
  * Creates a new service
  */
 export const post: RequestHandler<{}, Service> = async ({ request }) => {
-	const body: Prisma.ServiceCreateInput = await request.json();
+	const body: FullService = await request.json();
+
+	const { headers, button, ...reduced } = body;
 
 	const service = await prisma.service.create({
-		data: body,
-		include: {
-			button: true,
-			headers: true
+		data: {
+			...reduced
 		}
 	});
 
