@@ -4,7 +4,7 @@
 	import IconButton from '$/components/ui/icon-button.svelte';
 	import Routes from '$/constants/routes';
 	import { toDate } from '$/helpers/date.helpers';
-	import type { ServiceStatusResponse } from '$/models/ServiceStatusResponse';
+	import type { ServiceWithStatus } from '$/models/ServiceResponse';
 	import { invalidate } from '$app/navigation';
 	import Icon from 'svelte-icons-pack';
 	import FiCheck from 'svelte-icons-pack/fi/FiCheck';
@@ -13,7 +13,11 @@
 	import FiTrash2 from 'svelte-icons-pack/fi/FiTrash2';
 	import FiX from 'svelte-icons-pack/fi/FiX';
 
-	export let service: ServiceStatusResponse;
+	export let data: ServiceWithStatus;
+
+	const { service, status } = data;
+
+	const isSuccessful = status.success;
 
 	const doDelete = async () => {
 		if (!window.confirm('Are you sure you want to delete this service?')) {
@@ -40,13 +44,13 @@
 
 		<div
 			class="flex aspect-square w-fit items-center justify-center rounded-full p-2 text-xl"
-			title="Service {service.name} is {service.status.success ? 'up' : 'down'}"
-			class:bg-green-200={service.status.success}
-			class:text-green-600={service.status.success}
-			class:bg-red-200={!service.status.success}
-			class:text-red-600={!service.status.success}
+			title="Service {service.name} is {isSuccessful ? 'up' : 'down'}"
+			class:bg-green-200={isSuccessful}
+			class:text-green-600={isSuccessful}
+			class:bg-red-200={!isSuccessful}
+			class:text-red-600={!isSuccessful}
 		>
-			<Icon src={service.status.success ? FiCheck : FiX} />
+			<Icon src={isSuccessful ? FiCheck : FiX} />
 		</div>
 	</div>
 
@@ -54,7 +58,7 @@
 	<p class="text-sm text-gray-600">Last updated at: {toDate(service.updatedAt)}</p>
 
 	<Tag class="mt-2 border border-gray-400 bg-gray-200" size="xs">
-		{service.label}: {service.status.data}
+		{status.label}: {status.message}
 	</Tag>
 
 	<div class="mt-2 flex gap-2">
@@ -75,7 +79,7 @@
 		<IconButton
 			icon={FiExternalLink}
 			label="View {service.name}"
-			href={service.url}
+			href={service.statusUrl}
 			useGoto={false}
 		/>
 	</div>

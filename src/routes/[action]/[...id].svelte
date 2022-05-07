@@ -6,7 +6,8 @@
 	import RadioButtons from '$/components/ui/radio-buttons.svelte';
 	import DefaultColors from '$/constants/colors';
 	import type { Option } from '$/models/Form';
-	import type { ServiceResponse } from '$/models/ServiceResponse';
+	import type { FullService, StrippedService } from '$/models/ServiceResponse';
+	import type { ServiceButtonOptions } from '@prisma/client';
 	import type { Load } from '@sveltejs/kit';
 	import Icon from 'svelte-icons-pack';
 	import FiSave from 'svelte-icons-pack/fi/FiSave';
@@ -42,7 +43,7 @@
 			};
 		}
 
-		const service: ServiceResponse = await fetch(`/api/services/${id}`).then((res) => res.json());
+		const service: FullService = await fetch(`/api/services/${id}`).then((res) => res.json());
 
 		return {
 			props: {
@@ -55,36 +56,32 @@
 
 <script lang="ts">
 	export let isNew: boolean;
-	export let service: ServiceResponse | null;
+	export let service: FullService | null;
 
-	let form = {
+	let form: StrippedService<'id' | 'createdAt' | 'updatedAt'> & {
+		button: Omit<ServiceButtonOptions, 'id' | 'serviceId'>;
+	} = {
 		name: service?.name ?? '',
 		description: service?.description ?? '',
-		status: {
-			label: service?.status.label ?? '',
-			method: service?.status.method ?? 'GET',
-			statusUrl: service?.status.statusUrl ?? '',
-			type: service?.status.type ?? 'JSON',
-			successString: service?.status.successString ?? '',
-			successColor: service?.status.successColor ?? DefaultColors.success,
-			errorString: service?.status.errorString ?? '',
-			errorColor: service?.status.errorColor ?? DefaultColors.error,
-			parser: service?.status.parser ?? ''
+		statusUrl: service?.statusUrl ?? '',
+		errorOverride: service?.errorOverride ?? '',
+		method: service?.method ?? 'GET',
+		successOverride: service?.successOverride ?? '',
+		type: service?.type ?? 'JSON',
+		parser: service?.parser ?? '',
+		button: {
+			label: service?.button?.label ?? '',
+			successColor: service?.button?.successColor ?? DefaultColors.success,
+			errorColor: service?.button?.errorColor ?? DefaultColors.error
 		}
 	};
 
-	let headers: Option[] =
-		service?.status.headers.map((h) => ({ label: h.key, value: h.value })) ?? [];
+	let headers: Option[] = service?.headers?.map((h) => ({ label: h.key, value: h.value })) ?? [];
 
 	const handleSubmit = () => {
-		const { status, ...reduced } = form;
-
 		const body = {
-			...reduced,
-			status: {
-				...form.status,
-				headers: headers.map((h) => ({ key: h.label, value: h.value }))
-			}
+			...form,
+			headers: headers.map((h) => ({ key: h.label, value: h.value }))
 		};
 
 		const bodyStr = JSON.stringify(body);
@@ -140,7 +137,7 @@
 
 		<Input
 			name="label"
-			bind:value={form.status.label}
+			bind:value={form.button.label}
 			label="Label"
 			helper="This is what will be shown on badges etc."
 		/>
@@ -152,7 +149,7 @@
 	>
 		<Input
 			name="url"
-			bind:value={form.status.statusUrl}
+			bind:value={form.statusUrl}
 			label="URL"
 			placeholder="Ex. https://esek.se"
 			helper="The URL that the status is fetched from"
@@ -160,7 +157,7 @@
 
 		<RadioButtons
 			options={['GET', 'POST', 'PUT', 'PATCH', 'DELETE']}
-			bind:value={form.status.method}
+			bind:value={form.method}
 			helper="What method should be used to fetch the status?"
 		/>
 
@@ -172,13 +169,13 @@
 	<EditCard title="Data settings">
 		<RadioButtons
 			options={['JSON', 'XML', 'YAML']}
-			value={form.status.type}
+			value={form.type}
 			helper="What type of response are you fetching?"
 		/>
 
 		<Input
 			name="parser"
-			bind:value={form.status.parser}
+			bind:value={form.parser}
 			label="Parsing"
 			placeholder="Ex. $.name"
 			helper="Leave this field empty to get entire response"
@@ -186,28 +183,28 @@
 
 		<Input
 			name="success-override"
-			bind:value={form.status.successString}
+			bind:value={form.successOverride}
 			label="Success message"
 			helper="Override the fetched success message if the request suceeds"
 		/>
 
 		<Input
 			name="error-override"
-			bind:value={form.status.errorString}
+			bind:value={form.errorOverride}
 			label="Error message"
 			helper="Override the fetched error message if the request fails"
 		/>
 
 		<ColorInput
 			name="success-color"
-			bind:value={form.status.successColor}
+			bind:value={form.button.successColor}
 			label="Success color"
 			placeholder={DefaultColors.success}
 		/>
 
 		<ColorInput
 			name="error-color"
-			bind:value={form.status.errorColor}
+			bind:value={form.button.errorColor}
 			label="Error color"
 			placeholder={DefaultColors.error}
 		/>

@@ -12,7 +12,18 @@ model Service {
   name        String
   description String?
 
-  status ServiceStatus?
+  statusUrl String            @map("status_url")
+  method    Method
+  type      ServiceStatusType
+  parser    String? // used to try to get an actual value from the siteUrl
+
+  // overrides
+  successOverride String? @map("success_string")
+  errorOverride   String? @map("error_string")
+
+  button ServiceButtonOptions?
+
+  headers RequestHeader[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -20,39 +31,25 @@ model Service {
   @@map("services")
 }
 
-model ServiceStatus {
-  id Int @id @default(autoincrement())
-
-  label     String
-  statusUrl String            @map("status_url")
-  method    Method
-  type      ServiceStatusType
-  parser    String? // used to try to get an actual value from the siteUrl
-
-  // overrides
-  successString String? @map("success_string")
-  errorString   String? @map("error_string")
+model ServiceButtonOptions {
+  id    Int    @id @default(autoincrement())
+  label String
 
   successColor String? @map("success_color")
   errorColor   String? @map("error_color")
 
-  headers StatusHeader[]
-
-  // relation to the service
   service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   serviceId Int     @unique @map("service_id")
-
-  @@map("service_data")
 }
 
-model StatusHeader {
+model RequestHeader {
   id Int @id @default(autoincrement())
 
   key   String
   value String
 
-  serviceStatus   ServiceStatus @relation(fields: [serviceStatusId], references: [id], onDelete: Cascade)
-  serviceStatusId Int           @unique @map("service_status_id")
+  serviceStatus   Service @relation(fields: [serviceStatusId], references: [id], onDelete: Cascade)
+  serviceStatusId Int     @unique @map("service_status_id")
 
   @@map("status_headers")
 }

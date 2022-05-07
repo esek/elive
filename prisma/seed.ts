@@ -9,28 +9,18 @@ const TEST_DATA: pkg.Prisma.ServiceCreateInput[] = [
 	{
 		name: 'Posts',
 		description: 'This is a test service fetching posts',
-		status: {
-			create: {
-				label: 'posts',
-				statusUrl: 'https://jsonplaceholder.typicode.com/posts',
-				method: 'GET',
-				type: ServiceStatusType.JSON,
-				parser: '$.length'
-			}
-		}
+		statusUrl: 'https://jsonplaceholder.typicode.com/posts',
+		method: 'GET',
+		type: ServiceStatusType.JSON,
+		parser: '$.length'
 	},
 	{
 		name: 'Users',
 		description: 'This is a test service fetching users',
-		status: {
-			create: {
-				label: 'name',
-				statusUrl: 'https://jsonplaceholder.typicode.com/users/1',
-				method: 'GET',
-				type: ServiceStatusType.JSON,
-				parser: '$.name'
-			}
-		}
+		statusUrl: 'https://jsonplaceholder.typicode.com/users/1',
+		method: 'GET',
+		type: ServiceStatusType.JSON,
+		parser: '$.name'
 	}
 ];
 
@@ -45,11 +35,8 @@ const seed = async () => {
 			client.service.create({
 				data: s,
 				include: {
-					status: {
-						include: {
-							headers: true
-						}
-					}
+					button: true,
+					headers: true
 				}
 			})
 		)

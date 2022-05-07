@@ -1,6 +1,6 @@
 import DefaultColors from '$/constants/colors';
-import type { ServiceResponse } from '$/models/ServiceResponse';
-import type { Service, ServiceStatusType, StatusHeader } from '@prisma/client';
+import type { FullService, ServiceWithStatus, StrippedService } from '$/models/ServiceResponse';
+import type { RequestHeader, ServiceButtonOptions } from '@prisma/client';
 import axios, { type AxiosInstance } from 'axios';
 import jp from 'jsonpath';
 
@@ -15,46 +15,36 @@ type Overrides = {
 };
 
 class StatusFetcher {
-	private readonly service: Service & { label: string; url: string };
-
-	private readonly type: ServiceStatusType;
+	private readonly service: StrippedService;
+	private readonly button: Partial<ServiceButtonOptions>;
 	private readonly parser: string | null = null;
 
-	private readonly overrides: Overrides;
+	private successful: boolean = false;
+	private response: string = 'Success';
+
+	// private readonly service: Service & { label: string; url: string };
+
+	// private readonly type: ServiceStatusType;
+
+	// private readonly overrides: Overrides;
 	private readonly axiosInstance: AxiosInstance;
 
-	private statusMessage: string = 'Failed';
-	private successful: boolean = false;
+	// private statusMessage: string = 'Failed';
 
-	constructor(service: ServiceResponse, useParsers: boolean) {
-		const { status, ...rest } = service;
+	constructor(service: FullService, useParsers: boolean) {
+		const { headers, button, ...stripped } = service;
+		this.service = stripped;
+		this.button = button ?? {};
 
-		this.service = { ...rest, label: status.label, url: status.statusUrl };
+		this.axiosInstance = this.createAxiosInstance(service.statusUrl, service.method, headers);
 
-		this.axiosInstance = this.createAxiosInstance(status.statusUrl, status.method, status.headers);
-
-		this.type = status.type;
-
-		this.overrides = {
-			colors: {
-				success: status.successColor ?? DefaultColors.success,
-				error: status.errorColor ?? DefaultColors.error
-			},
-			messages: {
-				success: status.successString,
-				error: status.errorString
-			}
-		};
-
+		// if we want to use parsers, set the parser
 		if (useParsers) {
-			this.parser = status.parser;
+			this.parser = service.parser;
 		}
 	}
 
-	public static fromServicesArray(
-		statuses: ServiceResponse[],
-		useParsers: boolean
-	): StatusFetcher[] {
+	public static fromServicesArray(statuses: FullService[], useParsers: boolean): StatusFetcher[] {
 		return statuses.map((s) => new StatusFetcher(s, useParsers));
 	}
 
@@ -66,7 +56,7 @@ class StatusFetcher {
 	 * @param headers any headers that need to be set
 	 * @returns an axiosinstance
 	 */
-	private createAxiosInstance = (url: string, method: string, headers?: StatusHeader[]) => {
+	private createAxiosInstance = (url: string, method: string, headers?: RequestHeader[]) => {
 		return axios.create({
 			method,
 			baseURL: url,
@@ -74,7 +64,7 @@ class StatusFetcher {
 		});
 	};
 
-	private parseHeaders = (headers?: StatusHeader[]): Record<string, string> => {
+	private parseHeaders = (headers?: RequestHeader[]): Record<string, string> => {
 		if (!headers?.length) {
 			return {};
 		}
@@ -88,7 +78,9 @@ class StatusFetcher {
 		);
 	};
 
-	public fetch = async (): Promise<StatusFetcher> => {
+	public fetch = async (): Promise<void> => {
+		const { service } = this;
+
 		try {
 			const status = await this.axiosInstance.get('');
 			const response = status.data;
@@ -97,27 +89,26 @@ class StatusFetcher {
 			this.successful = true;
 
 			// if we have an override, use that
-			if (this.overrides.messages.success) {
-				this.statusMessage = this.overrides.messages.success;
-				return this;
+			if (service.successOverride) {
+				this.response = service.successOverride;
+				return;
 			}
 
 			// if we don't have a parser, return the entire response
 			if (!this.parser) {
-				this.statusMessage = 'Success';
-				return this;
+				this.response = 'Success';
+				return;
 			}
 
 			// if we do have a parser, use it
-			this.statusMessage = this.getParsedValue(response);
-			return this;
+			this.response = this.getParsedValue(response);
+
+			return;
 		} catch (err) {
 			// if we have an override, use that
-			if (this.overrides.messages.error) {
-				this.statusMessage = this.overrides.messages.error;
+			if (service.errorOverride) {
+				this.response = service.errorOverride;
 			}
-
-			return this;
 		}
 	};
 
@@ -128,7 +119,7 @@ class StatusFetcher {
 		}
 
 		// else we check how we want to parse it
-		switch (this.type) {
+		switch (this.service.type) {
 			case 'JSON':
 			case 'YAML':
 				return this.parseJson(response, this.parser);
@@ -161,13 +152,14 @@ class StatusFetcher {
 	 * Converts the status to a json object
 	 * @returns a json object
 	 */
-	public toJson = () => {
+	public toJson = (): ServiceWithStatus => {
 		return {
-			...this.service,
+			service: this.service,
 			status: {
-				success: this.successful,
-				data: this.statusMessage,
-				color: this.getColor()
+				label: this.button.label ?? this.service.name,
+				color: this.getColor(),
+				message: this.response,
+				success: this.successful
 			}
 		};
 	};
@@ -177,7 +169,11 @@ class StatusFetcher {
 	 * @returns a string of the color
 	 */
 	private getColor = () => {
-		return !this.successful ? this.overrides.colors.error : this.overrides.colors.success;
+		if (!this.successful) {
+			return this.button.errorColor ?? DefaultColors.error;
+		}
+
+		return this.button.successColor ?? DefaultColors.success;
 	};
 }
 

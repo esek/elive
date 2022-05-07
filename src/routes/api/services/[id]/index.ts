@@ -1,25 +1,18 @@
-import prisma from '$/lib/prisma';
-import type { Prisma } from '@prisma/client';
+import prisma, { fetchService } from '$/lib/prisma';
+import type { Prisma, Service } from '@prisma/client';
 import type { RequestHandler } from '@sveltejs/kit';
+
+export type Params = {
+	id: string;
+};
 
 /**
  * Get the service information for a specific service
  */
-export const get: RequestHandler = async ({ params }) => {
+export const get: RequestHandler<Params, Service> = async ({ params }) => {
 	const { id } = params;
 
-	const service = await prisma.service.findFirst({
-		where: {
-			id: Number(id)
-		},
-		include: {
-			status: {
-				include: {
-					headers: true
-				}
-			}
-		}
-	});
+	const service = await fetchService(Number(id), false);
 
 	return {
 		body: service
@@ -29,7 +22,7 @@ export const get: RequestHandler = async ({ params }) => {
 /**
  * Updates a specific service
  */
-export const put: RequestHandler = async ({ params, request }) => {
+export const put: RequestHandler<Params, Service> = async ({ params, request }) => {
 	const { id } = params;
 	const body: Prisma.ServiceUpdateInput = await request.json();
 
@@ -38,18 +31,10 @@ export const put: RequestHandler = async ({ params, request }) => {
 			id: Number(id)
 		},
 		include: {
-			status: {
-				include: {
-					headers: true
-				}
-			}
+			button: true,
+			headers: true
 		},
-		data: {
-			...body,
-			status: {
-				update: body.status
-			}
-		}
+		data: body
 	});
 
 	return {
@@ -68,11 +53,8 @@ export const del: RequestHandler = async ({ params }) => {
 			id: Number(id)
 		},
 		include: {
-			status: {
-				include: {
-					headers: true
-				}
-			}
+			button: true,
+			headers: true
 		}
 	});
 

@@ -1,20 +1,48 @@
-import type { ServiceResponse } from '$/models/ServiceResponse';
-import pkg from '@prisma/client';
+import type { FullService } from '$/models/ServiceResponse';
+import pkg, { type Service } from '@prisma/client';
 
 const prisma = new pkg.PrismaClient();
 
-export const fetchServices = async (): Promise<ServiceResponse[]> => {
-	const services = await prisma.service.findMany({
-		include: {
-			status: {
-				include: {
-					headers: true
-				}
-			}
-		}
+export const fetchService = async <F extends boolean>(
+	id: number,
+	full: F
+): Promise<F extends true ? FullService : Service> => {
+	const service = await prisma.service.findFirst({
+		where: {
+			id
+		},
+		...(full
+			? {
+					include: {
+						button: true,
+						headers: true
+					}
+			  }
+			: {})
 	});
 
-	return services.filter((s): s is ServiceResponse => s.status != null);
+	if (!service) {
+		throw new Error('Service not found');
+	}
+
+	return service as F extends true ? FullService : Service;
+};
+
+export const fetchServices = async <F extends boolean>(
+	full: F
+): Promise<F extends true ? FullService[] : Service[]> => {
+	const services = await prisma.service.findMany(
+		full
+			? {
+					include: {
+						button: true,
+						headers: true
+					}
+			  }
+			: undefined
+	);
+
+	return services;
 };
 
 export default prisma;

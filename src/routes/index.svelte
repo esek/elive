@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
 	import ServicesGrid from '$/components/feature/services/services-grid.svelte';
-	import type { ServiceStatusResponse } from '$/models/ServiceStatusResponse';
+	import type { ServiceWithStatus } from '$/models/ServiceResponse';
 	import type { Load } from '.svelte-kit/types/src/routes';
 
 	export const load: Load = async ({ fetch }) => {
@@ -15,7 +15,7 @@
 </script>
 
 <script lang="ts">
-	export let services: ServiceStatusResponse[];
+	export let services: ServiceWithStatus[];
 </script>
 
 <ServicesGrid {services} />

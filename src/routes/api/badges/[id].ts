@@ -1,27 +1,16 @@
-import prisma from '$/lib/prisma';
+import prisma, { fetchService } from '$/lib/prisma';
 import StatusFetcher from '$/lib/StatusFetcher';
-import type { ServiceResponse } from '$/models/ServiceResponse';
 import type { RequestHandler } from '@sveltejs/kit';
 import { makeBadge } from 'badge-maker';
+import type { Params } from '../services/[id]';
 
 /**
  * Uses shields.io badge-maker to create a badge for a given status.
  */
-export const get: RequestHandler = async ({ params }) => {
+export const get: RequestHandler<Params, string> = async ({ params }) => {
 	const { id } = params;
 
-	const service = await prisma.service.findFirst({
-		where: {
-			id: Number(id)
-		},
-		include: {
-			status: {
-				include: {
-					headers: true
-				}
-			}
-		}
-	});
+	const service = await fetchService(Number(id), true);
 
 	if (!service) {
 		return {
@@ -30,12 +19,15 @@ export const get: RequestHandler = async ({ params }) => {
 		};
 	}
 
-	const status = await new StatusFetcher(service as ServiceResponse, true).fetch();
-	const json = status.toJson();
+	const fetcher = new StatusFetcher(service, true);
+
+	await fetcher.fetch();
+
+	const json = fetcher.toJson();
 
 	const badge = makeBadge({
-		label: json.label,
-		message: json.status.data,
+		label: service.button?.label,
+		message: json.status.message,
 		color: json.status.color,
 		style: 'plastic'
 	});
