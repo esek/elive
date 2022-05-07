@@ -26,7 +26,7 @@ export const get: RequestHandler<Params, string> = async ({ params }) => {
 	const json = fetcher.toJson();
 
 	const badge = makeBadge({
-		label: service.button?.label,
+		label: service.button?.label ?? service.name,
 		message: json.status.message,
 		color: json.status.color,
 		style: 'plastic'
